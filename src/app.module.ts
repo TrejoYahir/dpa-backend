@@ -13,10 +13,10 @@ import { HttpExceptionFilter } from './filters/http.filter';
   providers: [
     AppService,
     SocialService,
-    {
+    /* {
     provide: APP_FILTER,
     useClass: HttpExceptionFilter,
-    },
+    }, */
   ],
 })
 export class AppModule {}

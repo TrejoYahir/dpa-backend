@@ -17,11 +17,11 @@ export class SocialService {
             access_token_key: twitterAuth.token || this.config.get('TWITTER_ACCESS_KEY'),
             access_token_secret: twitterAuth.secret || this.config.get('TWITTER_ACCESS_SECRET')
         }
-        
+
         let twitterClient = new Twitter(twitterKeys);
 
         const options = {
-            screen_name: twitterAuth.username,           
+            screen_name: twitterAuth.userName,           
             count: count
         };
 
