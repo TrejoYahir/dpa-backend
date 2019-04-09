@@ -1,8 +1,8 @@
 ## Pre requisites
 
-[Install nodejs](https://nodejs.org/es/) 
+[Install Nodejs](https://nodejs.org/es/) 
 
-[Install Nest](https://docs.nestjs.com/)
+[Install Nestjs](https://docs.nestjs.com/)
 
 Clone repo to your computer
 
