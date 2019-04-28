@@ -1,12 +1,13 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from 'src/config/config.service';
 import * as Twitter from 'twitter';
 import { TwitterAuthDto } from 'src/dtos/twitter-auth.dto';
+import { GoogleCloudService } from '../google-cloud/google-cloud.service';
 
 @Injectable()
 export class SocialService {
 
-    constructor(private config: ConfigService) {
+    constructor(private config: ConfigService, private googleCloud: GoogleCloudService) {
     }
 
     public getTwitterPosts(twitterAuth: TwitterAuthDto, count: number): any {
@@ -16,16 +17,21 @@ export class SocialService {
             consumer_secret: this.config.get('TWITTER_CONSUMER_SECRET'),
             access_token_key: twitterAuth.token || this.config.get('TWITTER_ACCESS_KEY'),
             access_token_secret: twitterAuth.secret || this.config.get('TWITTER_ACCESS_SECRET')
-        }
-
-        let twitterClient = new Twitter(twitterKeys);
-
-        const options = {
-            screen_name: twitterAuth.userName,           
-            count: count
         };
 
-        return twitterClient.get('statuses/user_timeline', options);
+        const twitterClient = new Twitter(twitterKeys);
+
+        const options = {
+            screen_name: twitterAuth.userName,
+            count,
+        };
+
+        const tweets = twitterClient.get('statuses/user_timeline', options);
+
+        for (const tweet of tweets) {
+            const processedTweet = this.googleCloud.analyzePost(tweet);
+            console.log('processed tweet', processedTweet);
+        }
 
     }
 }
