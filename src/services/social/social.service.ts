@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from 'src/config/config.service';
 import * as Twitter from 'twitter';
 import { TwitterAuthDto } from 'src/dtos/twitter-auth.dto';
 import { GoogleCloudService } from '../google-cloud/google-cloud.service';
+import { PostDto } from '../../dtos/post.dto';
 
 @Injectable()
 export class SocialService {
@@ -25,17 +26,25 @@ export class SocialService {
 
         const options = {
             screen_name: twitterAuth.userName,
-            count: count,
+            count,
+            tweet_mode: 'extended',
         };
 
-        const tweets = twitterClient.get('statuses/user_timeline', options);
-
-        console.log('tweets', tweets);
-
-        for (const tweet of tweets) {
-            const processedTweet = await this.googleCloud.analyzePost(tweet);
-            processedTweets.push(processedTweet);
-            console.log('processed tweet', processedTweet);
+        try {
+            const tweets = await twitterClient.get('statuses/user_timeline', options);
+            console.log('tweets', tweets);
+            console.log('=====================================');
+            for (const tweet of tweets) {
+                const processedTweet = await this.googleCloud.analyzePost(tweet);
+                processedTweet.post = new PostDto(tweet.full_text, tweet.created_at);
+                processedTweets.push(processedTweet);
+            }
+            console.log('processed tweets', processedTweets);
+            console.log('=====================================');
+            return processedTweets;
+        } catch (e) {
+            console.log('error', e);
+            throw new ServiceUnavailableException();
         }
 
     }

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '../../config/config.service';
 import * as language from '@google-cloud/language';
 
 @Injectable()
@@ -7,26 +6,28 @@ export class GoogleCloudService {
 
   private client: any;
 
-  constructor(private config: ConfigService) {
+  constructor() {
     this.client = new language.LanguageServiceClient();
   }
 
   public async analyzePost(post: any): Promise<any> {
 
     // The text to analyze
+    const features = {
+      extractSyntax: true,
+      extractEntities: false,
+      extractDocumentSentiment: true,
+      extractEntitySentiment: false,
+      classifyText: false,
+    };
 
     const document = {
-      content: post,
+      content: post.full_text,
       type: 'PLAIN_TEXT',
     };
 
-    // Detects the sentiment of the text
-    const [result] = await this.client.annotateText({ document: document });
-    const sentiment = result.documentSentiment;
-
-    console.log(`Text: ${post}`);
-    console.log(`Sentiment score: ${sentiment.score}`);
-    console.log(`Sentiment magnitude: ${sentiment.magnitude}`);
-
+    // Detects the sentiment and syntactic information of the text
+    const [result] = await this.client.annotateText({ document, features });
+    return result;
   }
 }
