@@ -21,7 +21,7 @@ export class GoogleCloudService {
     };
 
     // Detects the sentiment of the text
-    const [result] = await this.client.annotateText({ document });
+    const [result] = await this.client.annotateText({ document: document });
     const sentiment = result.documentSentiment;
 
     console.log(`Text: ${post}`);

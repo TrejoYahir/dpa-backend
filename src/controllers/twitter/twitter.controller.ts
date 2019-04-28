@@ -8,9 +8,9 @@ export class TwitterController {
     constructor(private socialService: SocialService) { }
 
     @Post()
-    fetchPosts(@Body() twitterAuth: TwitterAuthDto): string {
-        const response = this.socialService.getTwitterPosts(twitterAuth, 100).then((data) => {
-            console.log('sucess', data[0].text);
+    async fetchPosts(@Body() twitterAuth: TwitterAuthDto): Promise<string> {
+        const response = await this.socialService.getTwitterPosts(twitterAuth, 100).then((data) => {
+            console.log('sucess', data);
             return response;
         }).catch((error) => {
             console.log('error', error);

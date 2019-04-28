@@ -10,26 +10,31 @@ export class SocialService {
     constructor(private config: ConfigService, private googleCloud: GoogleCloudService) {
     }
 
-    public getTwitterPosts(twitterAuth: TwitterAuthDto, count: number): any {
+    public async getTwitterPosts(twitterAuth: TwitterAuthDto, count: number): Promise<any> {
+
+        const processedTweets: any[] = [];
 
         const twitterKeys = {
             consumer_key: this.config.get('TWITTER_CONSUMER_KEY'),
             consumer_secret: this.config.get('TWITTER_CONSUMER_SECRET'),
             access_token_key: twitterAuth.token || this.config.get('TWITTER_ACCESS_KEY'),
-            access_token_secret: twitterAuth.secret || this.config.get('TWITTER_ACCESS_SECRET')
+            access_token_secret: twitterAuth.secret || this.config.get('TWITTER_ACCESS_SECRET'),
         };
 
         const twitterClient = new Twitter(twitterKeys);
 
         const options = {
             screen_name: twitterAuth.userName,
-            count,
+            count: count,
         };
 
         const tweets = twitterClient.get('statuses/user_timeline', options);
 
+        console.log('tweets', tweets);
+
         for (const tweet of tweets) {
-            const processedTweet = this.googleCloud.analyzePost(tweet);
+            const processedTweet = await this.googleCloud.analyzePost(tweet);
+            processedTweets.push(processedTweet);
             console.log('processed tweet', processedTweet);
         }
 
