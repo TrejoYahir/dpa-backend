@@ -1,4 +1,4 @@
-import { Controller, Get, ServiceUnavailableException, Body, Post } from '@nestjs/common';
+import { Controller, ServiceUnavailableException, Body, Post, Query } from '@nestjs/common';
 import { SocialService } from 'src/services/social/social.service';
 import { TwitterAuthDto } from 'src/dtos/twitter-auth.dto';
 
@@ -8,15 +8,13 @@ export class TwitterController {
     constructor(private socialService: SocialService) { }
 
     @Post()
-    fetchPosts(@Body() twitterAuth: TwitterAuthDto): string {
-        let response = this.socialService.getTwitterPosts(twitterAuth, 100).then((response) => {
-            console.log('sucess', response[0].text);
+    async fetchPosts(@Body() twitterAuth: TwitterAuthDto, @Query() params): Promise<string> {
+        try {
+            const response = await this.socialService.getTwitterPosts(twitterAuth, params.limit || 100);
             return response;
-        }).catch((error) => {
+        } catch (error) {
             console.log('error', error);
             throw new ServiceUnavailableException();
-        });
-
-        return response;
+        }
     }
 }
